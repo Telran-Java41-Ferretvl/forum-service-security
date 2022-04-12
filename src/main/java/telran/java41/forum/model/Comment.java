@@ -1,4 +1,4 @@
-package telran.java41.model;
+package telran.java41.forum.model;
 
 import java.time.LocalDateTime;
 
@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@EqualsAndHashCode(of = {"user", "dateCreated"})
+@EqualsAndHashCode(of = { "user", "dateCreated" })
 public class Comment {
 	@Setter
 	String user;
@@ -15,7 +15,7 @@ public class Comment {
 	String message;
 	LocalDateTime dateCreated;
 	int likes;
-	
+
 	public Comment() {
 		dateCreated = LocalDateTime.now();
 	}
@@ -25,7 +25,7 @@ public class Comment {
 		this.user = user;
 		this.message = message;
 	}
-	
+
 	public void addLike() {
 		likes++;
 	}

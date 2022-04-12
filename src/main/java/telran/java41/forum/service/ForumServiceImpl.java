@@ -1,6 +1,7 @@
 package telran.java41.forum.service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -13,8 +14,8 @@ import telran.java41.forum.dto.NewCommentDto;
 import telran.java41.forum.dto.NewPostDto;
 import telran.java41.forum.dto.PostDto;
 import telran.java41.forum.dto.exceptions.PostNotFoundException;
-import telran.java41.model.Comment;
-import telran.java41.model.Post;
+import telran.java41.forum.model.Comment;
+import telran.java41.forum.model.Post;
 
 @Service
 public class ForumServiceImpl implements ForumService {
@@ -52,15 +53,18 @@ public class ForumServiceImpl implements ForumService {
 	@Override
 	public PostDto updatePost(NewPostDto postUpdateDto, String id) {
 		Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
-		if (postUpdateDto.getContent() != null) {
-			post.setContent(postUpdateDto.getContent());
+		String content = postUpdateDto.getContent();
+		if (content != null) {
+			post.setContent(content);
 		}
-		if (postUpdateDto.getTitle() != null) {
-			post.setTitle(postUpdateDto.getTitle());
+		String title = postUpdateDto.getTitle();
+		if (title != null) {
+			post.setTitle(title);
 		}
-		if (postUpdateDto.getTags() != null) {
-			post.getTags().addAll(postUpdateDto.getTags());
-		}		
+		Set<String> tags = postUpdateDto.getTags();
+		if (tags != null) {
+			tags.forEach(post::addTag);
+		}
 		postRepository.save(post);
 		return modelMapper.map(post, PostDto.class);
 	}
@@ -74,10 +78,11 @@ public class ForumServiceImpl implements ForumService {
 
 	@Override
 	public PostDto addComment(String id, String author, NewCommentDto newCommentDto) {
-		Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException(id));
-		post.addComment(new Comment(author, newCommentDto.getMessage()));
+		Post post = postRepository.findById(id).orElseThrow(() -> new 	PostNotFoundException(id));
+		Comment comment = new Comment(author, newCommentDto.getMessage());
+		post.addComment(comment);
 		postRepository.save(post);
-		return modelMapper.map(post, PostDto.class);
+		return modelMapper.map(post,  PostDto.class);  
 	}
 
 	@Override
@@ -96,8 +101,9 @@ public class ForumServiceImpl implements ForumService {
 
 	@Override
 	public Iterable<PostDto> findPostsByDates(DatePeriodDto datePeriodDto) {
-		return postRepository.findBydateCreatedBetween(datePeriodDto.getDateFrom(), datePeriodDto.getDateTo())
+		return postRepository.findByDateCreatedBetween(datePeriodDto.getDateFrom(), datePeriodDto.getDateTo())
 				.map(p -> modelMapper.map(p, PostDto.class))
 				.collect(Collectors.toList());
 	}
+
 }
